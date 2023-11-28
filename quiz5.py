@@ -1,35 +1,54 @@
-def findBestPrice(rodL, prices, cutPrice, memo = None):
-    if(memo == None):
-        memo = {
-            # stores (best price, number of cuts)
+memo = None
+
+# show where the cuts are made
+def helper(rodL, prices, cutPrice, mem):
+    if(mem == None):
+        mem = {
+            # stores (best price, cut position)
             0: (prices[0], 0),
             1: (prices[1], 0)
         }
     
-    if rodL not in memo:
+    if rodL not in mem:
         maxP = -1*cutPrice
-        prevCuts = 0
+        cutPos = 0
 
         for i in range(1, rodL+1):
-            tmp = findBestPrice(rodL-i, prices, cutPrice, memo)
+            tmp = helper(rodL-i, prices, cutPrice, memo)
 
             tmpPrice = tmp[0] + prices[i]
-            tmpCuts = tmp[1]
 
             if i < rodL:
                 tmpPrice -= cutPrice
 
             if tmpPrice > maxP:
                 maxP = tmpPrice
-                if i < rodL: 
-                    prevCuts = tmpCuts + 1
-                else:
-                    prevCuts = 0
+                cutPos = i
+                
         
-        memo[rodL] = (maxP, prevCuts)
+        mem[rodL] = (maxP, cutPos)
     
-    return memo[rodL]
+    return mem[rodL]
 
+def findBestPrice(rodL, prices, cutPrice):
+    memo = None
+
+    tmp = helper(rodL, prices, cutPrice, memo)
+
+    price = tmp[0]
+    cutPos = tmp[1]
+
+    cutPoss = []
+    currLen = rodL
+
+    while(cutPos > 0):
+        cutPoss.append(cutPos)
+        tmp = cutPos
+        cutPos -= memo[currLen - cutPos][1]
+        currLen = currLen - tmp
+
+    return (price, cutPoss) 
+    
 
 
 for i in range(1, 11):
